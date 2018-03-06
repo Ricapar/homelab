@@ -86,3 +86,11 @@
       - outputs
       - osmetrics
       - ubiquiti
+
+  - name: Install Ubiquiti MIBs
+    copy:
+      src: "snmp/{{ item }}"
+      dest: "/usr/share/snmp/mibs/{{ item }}.txt"
+    with_items:
+      - UBNT-MIB
+      - UBNT-UniFi-MIB
