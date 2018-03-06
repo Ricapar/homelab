@@ -70,3 +70,17 @@
     copy:
       src: files/ricapar.sh
       dest: /etc/profile.d/ricapar.sh
+
+  - name: Telegraf Base Configuration
+    copy:
+      src: files/telegraf.conf
+      dest: /etc/telegraf/telegraf.conf
+
+  - name: Telegraf Extra Configuration
+    copy:
+      src: "files/telegraf-{{ item }}.conf"
+      dest: "/etc/telegraf/telegraf.d/{{ item }}.conf"
+    with_items:
+      - outputs
+      - osmetrics
+      - ubiquiti
