@@ -39,6 +39,8 @@
       - influxdb-client
       - oracle-java8-installer
       - unifi
+      - snmp
+      - snmp-mibs-downloader
 
   - name: InfluxDB - Telegraf
     apt:
