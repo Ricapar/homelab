@@ -1,10 +1,10 @@
-- name: "Base Configuration for CentOS 7"
+- name: "Base Configuration for Ubuntu HomeLab"
   hosts: all
   tasks:
 
-  - name: Install PackageCloud GPG Key
-    apt_key:
-      url: https://packagecloud.io/gpg.key
+#  - name: Install PackageCloud GPG Key
+#    apt_key:
+#      url: https://packagecloud.io/gpg.key
 
   - name: Install Grafana APT Repo
     apt_repository:
@@ -14,6 +14,10 @@
   - name: Enable Oracle Java Repos
     apt_repository:
       repo: ppa:webupd8team/java
+
+  - name: Enable LetsEncrypt/CertBot Repos
+    apt_repository:
+      repo: ppa:certbot/certbot
 
   - name: Install OS Packages 
     apt:
@@ -40,7 +44,12 @@
       - oracle-java8-installer
       - unifi
       - snmp
+      - snmpd
       - snmp-mibs-downloader
+      - software-properties-common
+      - nginx
+      - python-certbot-nginx
+      - nmap
 
   - name: InfluxDB - Telegraf
     apt:
@@ -90,7 +99,8 @@
   - name: Install Ubiquiti MIBs
     copy:
       src: "snmp/{{ item }}"
-      dest: "/usr/share/snmp/mibs/{{ item }}.txt"
+      dest: "/usr/share/snmp/mibs/{{ item }}"
     with_items:
       - UBNT-MIB
       - UBNT-UniFi-MIB
+      - UBNT-FROGFOOT-RESOURCES-MIB.mib
