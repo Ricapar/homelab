@@ -1,0 +1,6 @@
+---
+- name: Base OS Packages
+  include_tasks: packages.yml
+
+- name: Create Users
+  include_tasks: users.yml

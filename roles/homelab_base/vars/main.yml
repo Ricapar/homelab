@@ -1,0 +1,18 @@
+---
+home_users:
+  - name: rich
+    comment: Rich Acosta
+    uid: 1000
+  - name: nas
+    comment: Home NAS
+    uid: 1001
+  - name: erica
+    comment: Erica Feldman
+    uid: 1002
+
+home_group:
+  name: acosta
+  gid: 1478
+
+nas:
+  server: atlantis

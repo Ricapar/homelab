@@ -1,0 +1,53 @@
+---
+
+- name: Configure nginx Default Site
+  template:
+    dest: /etc/nginx/sites-enabled/default
+    src: templates/nginx_site_default.j2
+  notify: restart nginx
+
+- name: Configure nginx Hub Sites
+  template:
+    dest: /etc/nginx/sites-enabled/{{ item.hostname }}
+    src: templates/nginx_site.conf.j2
+  with_items: "{{ hub_sites }}"
+  notify: restart nginx
+
+- name: Generate Hub Index
+  template:
+    dest: /var/www/html/index.html
+    src: templates/nginx_index.html.j2
+
+- name: Create /var/lib/src
+  file:
+    path: /var/lib/src
+    state: directory
+
+- name: Download Latest Certbot
+  git:
+    repo: 'https://github.com/certbot/certbot'
+    dest: /var/lib/src/certbot
+    force: yes
+    update: yes
+
+- name: Create Certificate Paths
+  file:
+    path: "{{ letsencrypt.path }}"
+    state: directory
+
+- name: Install Certbot Update Script
+  template:
+    dest: "{{ letsencrypt.path }}/certbot-update.sh"
+    src: templates/certbot-update.sh.j2
+    mode: 0750
+    owner: root
+    group: root
+
+- name: Schedule Certbot to Renew Certificates
+  cron:
+    name: Renew LetsEncrypt Certificates
+    job: "{{ letsencrypt.path }}/certbot-update.sh"
+    hour: 0
+    minute: 0
+
+

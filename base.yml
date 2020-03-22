@@ -1,0 +1,11 @@
+---
+- name: Base Configuration for Linux Homelab Machines
+  hosts: all
+  roles:
+   - homelab_base
+
+- name: Configure Central Hub
+  hosts: hub
+  roles:
+    - homelab_hub
+

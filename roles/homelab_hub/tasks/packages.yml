@@ -1,0 +1,19 @@
+---
+- name: Install Packages
+  package:
+    name:
+    - nginx
+    - docker.io
+    state: latest
+
+- name: Install Python Packages 
+  pip:
+    name:
+    - docker-py
+    executable: pip3
+
+- name: Install Python2 Packages 
+  pip:
+    name:
+    - docker-py
+    executable: pip

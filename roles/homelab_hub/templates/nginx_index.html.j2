@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Home Hub</title>
+	<style type="text/css">
+
+	</style>
+</head>
+<body>
+	<h1>Home Hub</h1>
+	<ul>
+		{% for item in hub_sites %}
+		<li><a href="http://{{ item.hostname }}.{{ hub_name }}" title="{{ item.url }}">{{ item.name }}</a></li>
+		{% endfor %}
+	</ul>
+</body>
+</html>

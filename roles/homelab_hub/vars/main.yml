@@ -1,0 +1,88 @@
+---
+nas:
+  server: atlantis
+
+letsencrypt:
+  acme_server: https://acme-v02.api.letsencrypt.org/directory
+  email: rich@ricapar.net
+  domain: "*.ricapar.net,*.home.ricapar.net,*.hub.home.ricapar.net"
+  path: /opt/letsencrypt
+  alias: ricapar-homelab
+  hosted_zone_id: Z1CUDVR8SEFG55
+
+transmission:
+  auth: "Basic dHJhbnNtaXNzaW9uOmtpbmdkdXN0eTIzNQ"
+
+hub_name: hub.home.ricapar.net
+
+hub_sites:
+  - name: Plex Media Server
+    hostname: plex
+    url: https://172.16.0.25:32400/
+
+  - name: UniFi Controller - Router and Access-Point Configuration
+    hostname: unifi
+    url: https://172.16.0.5:8443/
+    extra: | 
+      proxy_set_header Connection "Upgrade";
+      proxy_set_header Connection $http_connection;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+
+  - name: PiHole DNS
+    hostname: dns
+    url: http://172.16.0.2/admin/
+
+  - name: Dell iDRAC - Dell R510 Remote Management Interface
+    hostname: idrac-r510
+    url: https://172.16.0.170/
+
+  - name: Dell iDRAC - Dell R330 Remote Management Interface
+    hostname: idrac-r330
+    url: https://172.16.0.216/
+
+  - name: Cisco SG300-52P - Core Network Switch
+    hostname: cisco
+    url: https://172.16.0.7/
+
+  - name: VMware ESXi - Virtualization Hypervisor
+    hostname: esxi
+    url: https://172.16.0.217/
+    extra: | 
+      proxy_set_header Connection "Upgrade";
+      proxy_set_header Connection $http_connection;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+
+  - name: Sonarr - TV Show Downloader
+    hostname: sonarr
+    url: http://172.16.32.10:8989/
+
+  - name: Radarr - Movie Downloader
+    hostname: radarr
+    url: http://172.16.32.10:7878/
+
+  - name: Transmission BitTorrent Tracker
+    hostname: transmission
+    url: http://172.16.32.10:9091/
+    extra: proxy_set_header Authorization "{{ transmission.auth }}";
+
+  - name: Jackett Torrent Indexer
+    hostname: jackett
+    url: http://172.16.32.10:9117/
+
+  - name: Portainer Docker GUI 
+    hostname: docker 
+    url: http://127.0.0.1:9000/
+
+  - name: Splunk 
+    hostname: splunk 
+    url: http://172.16.0.42:8000/
+
+  - name: Home Assistant
+    hostname: hass
+    url: http://172.16.0.253:8123/
+
+  - name: Grafana
+    hostname: grafana
+    url: http://172.16.0.42:3000/

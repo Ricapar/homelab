@@ -1,5 +1,9 @@
 - name: "Base Configuration for Ubuntu HomeLab"
   hosts: all
+  vars:
+
+
+
   tasks:
 
 #  - name: Install PackageCloud GPG Key

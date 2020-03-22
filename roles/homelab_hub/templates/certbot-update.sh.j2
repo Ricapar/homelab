@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+###############################################################################
+# Original Source from https://github.com/jed/certbot-route53
+# Modified by https://github.com/Ricapar for integration into 
+# homelab configuration and deployment via Ansible.
+###############################################################################
+
+cd "$(dirname "$0")";
+MYSELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+
+if [ -z "${CERTBOT_DOMAIN}" ]; then
+  mkdir -p "${PWD}/letsencrypt"
+
+  /var/lib/src/certbot/certbot-auto certonly \
+    --non-interactive \
+    --manual \
+    --manual-auth-hook "${MYSELF}" \
+    --manual-cleanup-hook "${MYSELF}" \
+    --preferred-challenge dns-01 \
+    --manual-public-ip-logging-ok \
+    --agree-tos \
+    --cert-name "{{ letsencrypt.alias }}" \
+    --config-dir "{{ letsencrypt.path }}/config" \
+    --work-dir "{{ letsencrypt.path }}/work" \
+    --logs-dir "{{ letsencrypt.path }}/logs" \
+    --domains "{{ letsencrypt.domain }}" \
+    --email "{{ letsencrypt.email }}" \
+    --server "{{ letsencrypt.acme_server }}"
+    #--server https://acme-v02.api.letsencrypt.org/directory
+
+else
+  [[ ${CERTBOT_AUTH_OUTPUT} ]] && ACTION="DELETE" || ACTION="UPSERT"
+
+  HOSTED_ZONE_ID="{{ letsencrypt.hosted_zone_id }}"
+
+  if [ -z "${HOSTED_ZONE_ID}" ]; then
+    if [ -n "${DOMAIN}" ]; then
+      echo "No hosted zone found that matches domain ${DOMAIN} or hostname ${CERTBOT_DOMAIN}"
+    else
+      echo "No hosted zone found that matches ${CERTBOT_DOMAIN}"
+    fi
+    exit 1
+  fi
+
+  aws route53 wait resource-record-sets-changed --id "$(
+    aws route53 change-resource-record-sets \
+    --profile dns \
+    --hosted-zone-id "${HOSTED_ZONE_ID}" \
+    --query ChangeInfo.Id --output text \
+    --change-batch "{
+      \"Changes\": [{
+        \"Action\": \"${ACTION}\",
+        \"ResourceRecordSet\": {
+          \"Name\": \"_acme-challenge.${CERTBOT_DOMAIN}.\",
+          \"ResourceRecords\": [{\"Value\": \"\\\"${CERTBOT_VALIDATION}\\\"\"}],
+          \"Type\": \"TXT\",
+          \"TTL\": 30
+        }
+      }]
+    }"
+  )"
+
+  echo "$ACTION $CERTBOT_DOMAIN"
+fi

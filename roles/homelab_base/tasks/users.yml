@@ -1,0 +1,61 @@
+---
+
+- name: Determine admin group for Ubuntu
+  set_fact:
+    os_admin_group: adm,sudo
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Determine admin group for CentOS
+  set_fact:
+    os_admin_group: wheel
+  when: ansible_distribution == 'CentOS'
+
+- name: Create Home Group
+  group:
+    name: "{{ home_group.name }}"
+    gid: "{{ home_group.gid }}"
+
+- name: Create User Accounts
+  user:
+    name: "{{ item.name }}"
+    comment: "{{ item.comment }}"
+    uid: "{{ item.uid }}"
+    group: "{{ home_group.name }}"
+    groups: "{{ os_admin_group }}"
+    append: true
+  with_items: "{{ home_users }}"
+
+- name: Allow home group to use sudo
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^%acosta ALL='
+    line: '%acosta ALL=(ALL) NOPASSWD: ALL'
+
+- name: Create NAS Home Dirs
+  file:
+    path: /nashome/{{ item.name }}
+    state: directory
+    owner: "{{ item.uid }}"
+    group: "{{ home_group.gid }}"
+    mode: 0750
+  with_items: "{{ home_users }}"
+  failed_when: False
+
+- name: Mount NFS Home Dirs
+  mount:
+    path: "/nashome/{{ item.name }}"
+    src: "{{ nas.server }}:/home/{{ item.name }}"
+    fstype: nfs
+    boot: yes
+    state: mounted
+  with_items: "{{ home_users }}"
+
+- name: Install vimrc
+  copy:
+    dest: "/home/{{ item.name }}/.vimrc"
+    src: files/vimrc
+    owner: "{{ item.name }}"
+    group: "{{ home_group.name }}"
+  with_items: "{{ home_users }}"
+

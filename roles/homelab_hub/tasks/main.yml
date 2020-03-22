@@ -1,0 +1,23 @@
+---
+
+- name: Create DataStore Mount
+  file:
+    path: "/datastore"
+    state: directory
+
+- name: Mount NAS DataStore
+  mount:
+    path: "/datastore"
+    src: "{{ nas.server }}:/nas/Home/DataStore"
+    fstype: nfs
+    boot: yes
+    state: mounted
+
+- name: Install Packages
+  include_tasks: packages.yml
+
+- name: Configure Docker
+  include_tasks: docker.yml
+
+- name: Configure Nginx Hub
+  include_tasks: nginx.yml
